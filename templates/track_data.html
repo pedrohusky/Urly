@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <style>
+        /* Your existing styles here */
+        body {
+            background-color: #333;
+            color: white;
+            font-family: 'Retro Font', sans-serif;
+            padding: 2rem;
+        }
+        .card {
+            background-color: #444;
+            border: none;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.4);
+        }
+        h1 {
+            color: #ff8c00;
+            font-size: 2.5rem;
+        }
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+{% if clicks %}
+    <h1 class="mb-4">Total Clicks / Openings</h1>
+    <ul>
+        <li>{{ clicks }}</li>
+    </ul>
+{% else %}
+    <p>No clicks found.</p>
+{% endif %}
+<div class="row">
+        <div class="col-md-6">
+            <!-- User Locations Chart -->
+            {% if user_locations %}
+                <h1 class="mb-4">User Locations</h1>
+                <div class="mx-auto" style="width: 400px;"> <!-- Center-align the chart -->
+                    <canvas id="userLocationsChart" width="400" height="400"></canvas>
+                </div>
+            {% else %}
+                <p>No user locations found.</p>
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <!-- Countries Chart -->
+            {% if countries %}
+                <h1 class="mb-4">Countries</h1>
+                <div class="mx-auto" style="width: 400px;"> <!-- Center-align the chart -->
+                    <canvas id="countriesChart" width="400" height="400"></canvas>
+                </div>
+            {% else %}
+                <p>No countries found.</p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <!-- Platforms Chart -->
+            {% if platforms %}
+                <h1 class="mb-4">Platforms</h1>
+                <div class="mx-auto" style="width: 400px;"> <!-- Center-align the chart -->
+                    <canvas id="platformsChart" width="400" height="400"></canvas>
+                </div>
+            {% else %}
+                <p>No platforms found.</p>
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <!-- Click Dates Chart -->
+            {% if created_times %}
+                <h1 class="mb-4">Click Dates</h1>
+                <div class="mx-auto" style="width: 400px;"> <!-- Center-align the chart -->
+                    <canvas id="clickDatesChart" width="400" height="400"></canvas>
+                </div>
+            {% else %}
+                <p>No click dates found.</p>
+            {% endif %}
+        </div>
+    </div>
+<script>
+
+</script>
+
+
+</body>
+</html>

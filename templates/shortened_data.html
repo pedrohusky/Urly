@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <!-- Include Bootstrap JS (Optional, only if you want to use Bootstrap's JavaScript components) -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        .non-clickable {
+        pointer-events: none;
+      background-color: #383838;
+        border-color: red; /* Change this color as needed */
+    }
+    </style>
+</head>
+<body>
+
+<div class="mt-3">
+    <p class="mb-1">Shortened URL:</p>
+    <button id="shortenedURL" class="btn btn-primary copy-button" onclick="copyToClipboard()" data-toggle="tooltip" data-placement="top" title="Click to copy shortened link">{{ result_data.shortened_url }}</button>
+</div>
+
+<!-- Display Track ID here -->
+<div class="mt-3">
+    <p class="mb-1">Track ID:</p>
+    <button id="trackIdLink" class="btn btn-primary copy-button" onclick="copyTrackId()" data-toggle="tooltip" data-placement="top" title="Click to copy this to used to track the user engagement later">{{ result_data.short_code }}</button>
+</div>
+
+{% if result_data.expiry_time is not none %}
+    <div class="mt-3">
+        <p class="mb-1">Link will expire in:</p>
+        <button class="btn btn-primary non-clickable" data-toggle="tooltip" data-placement="top" title="The link will expire in this date">
+            Will expire in {{ result_data.expiry_time.strftime('%m/%d/%y at %I:%M %p') }}
+        </button>
+    </div>
+{% else %}
+    <div class="mt-3">
+        <p class="mb-1">Link will expire in:</p>
+        <button class="btn btn-primary non-clickable" data-toggle="tooltip" data-placement="top" title="The link will expire in this date">
+            Link will not expire.
+        </button>
+    </div>
+{% endif %}
+
+
+<script>
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Data</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #333;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background-color: #444;
+            border: none;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.4);
+        }
+        h1 {
+            color: #f39c12;
+            margin-bottom: 20px;
+        }
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .input-group-addon {
+            background-color: #ff8c00;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px 0 0 5px;
+        }
+        .track-button {
+            background-color: #ff8c00;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 0 5px 5px 0;
+        }
+        .form-control {
+            border-radius: 0 5px 5px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="container">
+        <h1>Track Data</h1>
+        <div class="input-group">
+            <input type="text" class="form-control" id="track_id" placeholder="Enter Track ID">
+            <button class="btn btn-primary track-button" onclick="trackData()">Track</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function trackData() {
+        const trackId = document.getElementById('track_id').value;
+        if (trackId) {
+            window.location.href = `/track/${trackId}`;
+        }
+    }
+</script>
+
+</body>
+</html>

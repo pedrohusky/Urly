@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Urly</title>
+  <!-- Add Bootstrap CSS link here -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+  <style>
+    body {
+            background-color: #333;
+      color: white;
+      font-family: 'Retro Font', sans-serif;
+      padding: 2rem;
+    }
+    .container {
+      background-color: #444;
+            border: none;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.4);
+            text-align: center; /* Add this line to center the content */
+    }
+    h1 {
+
+      color: #ff8c00;
+      font-size: 2.5rem;
+    }
+    .track-button {
+      background-color: #ff8c00;
+      float: right;
+      margin-top: 0.5rem;
+    }
+    label {
+    margin: 1rem;
+      font-size: 1.2rem;
+    }
+    select, input[type="text"] {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.2rem;
+      background-color: #383838;
+      border: none;
+      color: white;
+      border-radius: 5px;
+    }
+    input[type="submit"] {
+      background-color: #ff8c00;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      margin: 1rem;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s ease-in-out;
+    }
+    input[type="submit"]:hover {
+      background-color: #ffaf5b;
+    }
+    a {
+      color: white;
+      text-decoration: none;
+    }
+       /* Additional styling for the copied track ID button */
+    button.copy-button {
+      background-color: #ff8c00;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      padding: 0.25rem 0.5rem;
+      margin-top: 0.2rem;
+      transition: background-color 0.3s ease-in-out;
+    }
+
+    button.copy-button:hover {
+      background-color: #ffaf5b;
+    }
+      /* Darken the button when clicked */
+/* Darken the button when clicked */
+button.copy-button:active {
+    background-color: #d17c00 !important; /* Darker shade of the original color */
+}
+      .form-control {
+      margin-right: 0.5rem;
+      }
+
+      .form-select {
+    width: auto; /* Allow the select to take up only the necessary space */
+    display: block;
+    margin: 0.2rem auto; /* Center the select horizontally */
+    border: none;
+    border-radius: 5px;
+}
+
+  </style>
+</head>
+<body>
+
+<div class="container mt-5">
+  <h1 class="mb-4">Shorten a URL
+  </h1>
+
+  <form method="post" id="shortenForm">
+    <label for="original_url">Original URL:</label>
+    <input type="text" name="original_url" id="original_url">
+    <br>
+    <label for="expiry_date">Expiry Date:</label>
+    <select name="expiry_date" id="expiry_date" class="form-select">
+      <option value="5">5 minutes</option>
+      <option value="30">30 minutes</option>
+      <option value="60">1 hour</option>
+      <option value="240">4 hours</option>
+      <option value="360">6 hours</option>
+      <option value="720">12 hours</option>
+      <option value="1440">24 hours</option>
+      <option value="4320">3 days</option>
+      <option value="10080">7 days</option>
+      <option value="43200">30 days</option>
+      <option value="0">Indefinitely</option>
+    </select>
+    <br>
+    <input type="submit" class="btn btn-primary copy-button" value="Shorten">
+  </form>
+
+    <div class="mt-3" id="shortenResults" style="display: none;">
+        <!-- Shortened URL and Track ID will be inserted here using JavaScript -->
+    </div>
+
+
+</div>
+
+<div class="container mt-4">
+        <h1>Track Data</h1>
+        <div class="input-group">
+            <input type="text" class="form-control" id="short_code" placeholder="Enter Track ID">
+            <button class="btn btn-primary copy-button" onclick="trackData()">Track</button>
+        </div>
+    </div>
+
+<div class="container mt-4" id="trackingResults" style="display: none;">
+    <!-- Tracking results will be inserted here using JavaScript -->
+</div>
+
+<script>
+        function copyTrackId() {
+            var copyText = document.getElementById("trackIdLink");
+            var textArea = document.createElement("textarea");
+            textArea.value = copyText.textContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand("Copy");
+            textArea.remove();
+            alert("Track ID copied to clipboard: " + copyText.textContent);
+        }
+
+        function copyToClipboard() {
+            var copyText = document.getElementById("shortenedURL");
+            var textArea = document.createElement("textarea");
+            textArea.value = copyText.textContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand("Copy");
+            textArea.remove();
+            alert("Shortened URL copied to clipboard: " + copyText.textContent);
+        }
+
+    async function trackData() {
+    const trackId = document.getElementById('short_code').value;
+    try {
+        const response = await fetch(`/track/${trackId}`);
+        const responseData = await response.json();
+
+        // Extract the response data
+        const {
+            user_locations,
+            countries,
+            platforms,
+            clicks,
+            created_times,
+            html_template
+        } = responseData;
+
+        // Show the tracking results container and insert the HTML template
+        const trackingResultsContainer = document.getElementById('trackingResults');
+        trackingResultsContainer.innerHTML = html_template;
+        trackingResultsContainer.style.display = 'block';
+
+        // Count clicks for each 15-minute interval
+var clickCountsPerInterval = {};
+created_times.forEach(function(date) {
+    var roundedDate = new Date(date);
+    roundedDate.setMinutes(Math.floor(roundedDate.getMinutes() / 15) * 15); // Round minutes down to nearest 15-minute interval
+
+    var formattedDate = roundedDate.toLocaleString('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        year: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+
+    clickCountsPerInterval[formattedDate] = (clickCountsPerInterval[formattedDate] || 0) + 1;
+});
+
+var clickIntervals = Object.keys(clickCountsPerInterval);
+var clickCounts = Object.values(clickCountsPerInterval);
+
+// User Locations Chart
+var userLocationsChart = new Chart("userLocationsChart", {
+    type: "bar", // Change the type from pie to bar
+    data: {
+        labels: user_locations,
+        datasets: [{
+            backgroundColor: ["red", "green", "blue", "orange", "purple"],
+            data: clickCounts
+        }]
+    },
+    options: {
+        title: {
+            display: true,
+            text: "User Locations"
+        },
+        responsive: false,
+        scales: {
+            xAxes: [{
+                type: "category",
+                labels: clickIntervals,
+                ticks: {
+                    autoSkip: true,
+                    maxTicksLimit: 10
+                }
+            }],
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        }
+    }
+});
+
+// Countries Chart
+var countriesChart = new Chart("countriesChart", {
+    type: "bar",
+    data: {
+        labels: countries,
+        datasets: [{
+            backgroundColor: ["red", "green", "blue", "orange", "purple"],
+            data: clickCounts
+        }]
+    },
+    options: {
+        title: {
+            display: true,
+            text: "Countries"
+        },
+        responsive: false,
+        scales: {
+            xAxes: [{
+                type: "category",
+                labels: clickIntervals,
+                ticks: {
+                    autoSkip: true,
+                    maxTicksLimit: 10
+                }
+            }],
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        }
+    }
+});
+
+// Platforms Chart
+var platformsChart = new Chart("platformsChart", {
+    type: "bar", // Change the type from doughnut to bar
+    data: {
+        labels: platforms,
+        datasets: [{
+            backgroundColor: ["red", "green", "blue", "orange"],
+            data: clickCounts
+        }]
+    },
+    options: {
+        title: {
+            display: true,
+            text: "Platforms"
+        },
+        responsive: false,
+        scales: {
+            xAxes: [{
+                type: "category",
+                labels: clickIntervals,
+                ticks: {
+                    autoSkip: true,
+                    maxTicksLimit: 10
+                }
+            }],
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        }
+    }
+});
+
+// Click Dates Chart
+var clickDatesChart = new Chart("clickDatesChart", {
+    type: "line",
+    data: {
+        labels: clickIntervals,  // Use the formatted date strings
+        datasets: [{
+            backgroundColor: "rgba(0,0,255,0.1)",
+            borderColor: "rgba(0,0,255,1)",
+            data: clickCounts
+        }]
+    },
+    options: {
+        title: {
+            display: true,
+            text: "Click Dates"
+        },
+        responsive: false,
+        scales: {
+            xAxes: [{
+                type: "category",
+                labels: clickIntervals,
+                ticks: {
+                    autoSkip: true,
+                    maxTicksLimit: 10
+                }
+            }],
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        }
+    }
+});
+
+
+
+        // Optionally, scroll to the tracking results for better visibility
+        trackingResultsContainer.scrollIntoView({ behavior: 'smooth' });
+    } catch (error) {
+        console.error('Error fetching tracking data:', error);
+    }
+}
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+  const shortenForm = document.getElementById('shortenForm');
+    shortenForm.addEventListener('submit', async (event) => {
+    event.preventDefault(); // Prevent default form submission
+
+    const formData = new FormData(shortenForm);
+
+    try {
+        const response = await fetch('/shorten', {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (response.ok) {
+            // Get the response JSON data
+            const jsonData = await response.text();
+
+            // Construct the HTML content using the JSON data
+            const htmlContent = jsonData;
+
+            // Display the shortened URL and track ID
+            const shortenResultsContainer = document.getElementById('shortenResults');
+            shortenResultsContainer.innerHTML = htmlContent;
+            shortenResultsContainer.style.display = 'block';
+        } else {
+            console.error('Shorten request failed:', response.statusText);
+        }
+    } catch (error) {
+        console.error('Error submitting shorten request:', error);
+    }
+});
+});
+
+
+    </script>
+
+</body>
+</html>
