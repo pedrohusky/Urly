@@ -1,3 +1,4 @@
+import re
 import threading
 from datetime import datetime, timedelta
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -17,7 +18,7 @@ scheduler.start()
 
 class ShortenedURL(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    original_url = db.Column(db.String(255), unique=True, nullable=False)
+    original_url = db.Column(db.String(255), nullable=False)
     short_code = db.Column(db.String(6), unique=True, nullable=False)
     created_time = db.Column(db.DateTime, default=datetime.utcnow)  # Add created time field
     expiry_time = db.Column(db.DateTime)  # Add expiry time field
@@ -32,6 +33,7 @@ class ClickTracking(db.Model):
     click_count = db.Column(db.Integer, default=0)
     platform = db.Column(db.String(50))
     country = db.Column(db.String(50))
+    ip = db.Column(db.String(20))
     created_time = db.Column(db.DateTime, default=datetime.utcnow)  # Add created time field
 
 
@@ -44,6 +46,7 @@ def generate_short_code():
 
 def remove_expired_urls():
     print('Starting cleanup')
+    start_time = datetime.utcnow()
     with app.app_context():
         now = datetime.utcnow()
 
@@ -66,6 +69,8 @@ def remove_expired_urls():
             db.session.delete(orphaned_entry)
 
         db.session.commit()
+        end_time = datetime.utcnow()
+        print(f'Finished cleanup in {end_time - start_time} seconds')
 
 
 
@@ -74,6 +79,8 @@ def remove_expired_urls():
 def shorten():
     if request.method == 'POST':
         original_url = request.form['original_url']
+        if original_url.strip() == "":
+            return render_template('shortened_data.html', result_data={})
         expiry_minutes = int(request.form.get('expiry_date', 0))  # Get selected expiry minutes
 
         # Calculate the expiry time based on the selected minutes
@@ -129,7 +136,8 @@ def record_click(session, short_code, user_agent_string, ip_address):
             shortened_url_id=short_code,
             user_location=location,
             platform=user_agent.os.family,
-            country=country
+            country=country,
+            ip=ip_address
         )
         session.add(click)
         session.commit()
@@ -207,6 +215,6 @@ if __name__ == '__main__':
     with app.app_context():  # Enter the application context
         db.create_all()  # Create database tables
 
-        scheduler.add_job(remove_expired_urls, trigger=IntervalTrigger(seconds=24))
+        scheduler.add_job(remove_expired_urls, trigger=IntervalTrigger(minutes=1))
         app.run(host='0.0.0.0', port=80)
 
