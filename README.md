@@ -2,6 +2,9 @@
 
 Welcome to Urly, a simple yet powerful URL shortener.
 
+## DEMO
+ - https://urly-515q.onrender.com/
+
 ## What does it do?
 
 - You set up a URL to be shortened.
