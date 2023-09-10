@@ -24,4 +24,6 @@ Until these TODOs are met, Urly cannot move forward.
 Feel free to use this code under the provided license.
 
 ## How to run:
- - python main.py
+```
+python main.py
+```
