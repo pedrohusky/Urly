@@ -25,5 +25,8 @@ Feel free to use this code under the provided license.
 
 ## How to run:
 ```
+pip install requirements.txt
+```
+```
 python main.py
 ```
